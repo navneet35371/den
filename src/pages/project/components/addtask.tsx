@@ -46,7 +46,7 @@ export default function AddTask() {
                     <TextField fullWidth label="description" id="fullWidth" value={text} onChange={(e) => handleTextchange(e.target.value)} />
                 </CardContent>
                 <CardActions>
-                    <Button size="small" onClick={addTask}>Add</Button>
+                    <Button size="small" onClick={addTask} disabled={text==""}>Add</Button>
                 </CardActions>
             </Card>
         </Grid>
