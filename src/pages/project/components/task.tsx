@@ -1,4 +1,4 @@
-import { Grid, Card, CardHeader, Avatar, IconButton, CardContent, Typography, CardActions, Button, Menu, MenuItem } from "@mui/material";
+import { Grid, Card, CardHeader, Avatar, IconButton, CardContent, Typography, CardActions, Button, Menu, MenuItem, TextField } from "@mui/material";
 import { red } from "@mui/material/colors";
 import React from "react";
 import { Task } from '../types';
@@ -7,6 +7,8 @@ import { getDatabase, ref, remove, update } from "firebase/database";
 
 export default function TaskCard(props: any) {
     const { task } = props;
+    const [isUpdate, setIsUpdate] = React.useState(false);
+    const [taskDescription, setTaskDescription] = React.useState(task.name);
     const handleDelete = (id: string) => {
         const db = getDatabase();
         const tasksRef = ref(db, 'tasks/' + id);
@@ -24,7 +26,18 @@ export default function TaskCard(props: any) {
     const updateTask = (taskId: string, status: string) => {
         const db = getDatabase();
         const tasksRef = ref(db, 'tasks/' + taskId);
-        update(tasksRef, { status: status});
+        update(tasksRef, { status: status });
+    }
+
+    const updateDescription = (taskId: string, description: string) => {
+        const db = getDatabase();
+        const tasksRef = ref(db, 'tasks/' + taskId);
+        update(tasksRef, { name: description });
+    }
+
+
+    const handleTextchange = (value: string) => {
+        setTaskDescription(value);
     }
     return (
         <Grid item xs={4} sm={4} md={4} key={task.id}>
@@ -50,12 +63,15 @@ export default function TaskCard(props: any) {
                     title="Navneet"
                     subheader={task.status}
                 />
-                <CardContent>
-                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                <CardContent >
+                    {!isUpdate && <Typography sx={{ mb: 1.5 }} color="text.secondary">
                         {task.name}
-                    </Typography>
+                    </Typography>}
+                    {isUpdate && <TextField fullWidth label="description" value={taskDescription} onChange={(e) => handleTextchange(e.target.value)} />}
                 </CardContent>
                 <CardActions>
+                    {isUpdate && <Button size="small" onClick={() => { updateDescription(task.id, taskDescription); setIsUpdate(!isUpdate) }}>Update</Button>}
+                    {!isUpdate && <Button size="small" onClick={() => setIsUpdate(!isUpdate)}>Edit</Button>}
                     <Button size="small" onClick={() => handleDelete(task.id)}>Delete</Button>
                 </CardActions>
             </Card>
@@ -68,6 +84,7 @@ export default function TaskCard(props: any) {
                     'aria-labelledby': 'basic-button',
                 }}
             >
+                <MenuItem onClick={() => updateTask(task.id, "To-Do")}>Mark as To-Do</MenuItem>
                 <MenuItem onClick={() => updateTask(task.id, "In-Progress")}>Mark as In-Progress</MenuItem>
                 <MenuItem onClick={() => updateTask(task.id, "Done")}>Mark as Done</MenuItem>
             </Menu>
