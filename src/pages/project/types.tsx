@@ -4,4 +4,6 @@ export type Task = {
     status: string;
     // date?: string;
     assigned_to?: string;
+    startDate?: string;
+    endDate?: string;
   }

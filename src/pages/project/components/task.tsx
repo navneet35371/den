@@ -4,11 +4,15 @@ import React from "react";
 import { Task } from '../types';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { getDatabase, ref, remove, update } from "firebase/database";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from "dayjs";
 
 export default function TaskCard(props: any) {
     const { task } = props;
     const [isUpdate, setIsUpdate] = React.useState(false);
     const [taskDescription, setTaskDescription] = React.useState(task.name);
+    const [startDate, setStartDate] = React.useState<Date | null>(new Date(task.startDate));
+    const [endDate, setEndDate] = React.useState<Date | null>(new Date(task.endDate));
     const handleDelete = (id: string) => {
         const db = getDatabase();
         const tasksRef = ref(db, 'tasks/' + id);
@@ -32,9 +36,20 @@ export default function TaskCard(props: any) {
     const updateDescription = (taskId: string, description: string) => {
         const db = getDatabase();
         const tasksRef = ref(db, 'tasks/' + taskId);
-        update(tasksRef, { name: description });
+        update(tasksRef, { name: description, startDate: dayjs(startDate).toDate(), endDate: dayjs(endDate).toDate()});
     }
 
+    const updateStartDate = (taskId: string, value: Date|null) => {
+        const db = getDatabase();
+        const tasksRef = ref(db, 'tasks/' + taskId);
+        update(tasksRef, { startDate: value });
+    }
+    
+    const updateEndDate = (taskId: string, value: Date|null) => {
+        const db = getDatabase();
+        const tasksRef = ref(db, 'tasks/' + taskId);
+        update(tasksRef, { endDate: value });
+    }
 
     const handleTextchange = (value: string) => {
         setTaskDescription(value);
@@ -65,9 +80,20 @@ export default function TaskCard(props: any) {
                 />
                 <CardContent >
                     {!isUpdate && <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                        {task.name}
+                        {task.name && <span>Descriptiion: {task.name}</span>}   
+                        {task.startDate && <div>Start Date: {dayjs(task.startDate).format('DD/MM/YYYY')}</div>}
+                        {task.endDate && <div>End Date: {dayjs(task.endDate).format('DD/MM/YYYY')}</div>}
                     </Typography>}
-                    {isUpdate && <TextField fullWidth label="description" value={taskDescription} onChange={(e) => handleTextchange(e.target.value)} />}
+                    {isUpdate &&
+                        <>
+                            <TextField fullWidth label="description" value={taskDescription} onChange={(e) => handleTextchange(e.target.value)} />
+                            <DatePicker label="Start Date"
+                                value={startDate}
+                                onChange={(newValue) => {setStartDate(newValue)}} />
+                            <DatePicker label="End date"
+                                value={endDate}
+                                onChange={(newValue) => {setEndDate(newValue)}} />
+                        </>}
                 </CardContent>
                 <CardActions>
                     {isUpdate && <Button size="small" onClick={() => { updateDescription(task.id, taskDescription); setIsUpdate(!isUpdate) }}>Update</Button>}

@@ -28,7 +28,7 @@ export default function AddTask() {
     const addTask = () => {
         const db = getDatabase();
         const tasksRef = ref(db, 'tasks');
-        push(tasksRef, {name: text, status: "To-Do"} as Task).then(() => {setText("")});
+        push(tasksRef, {name: text, status: "To-Do", startDate:"", endDate:"" } as Task).then(() => {setText("")});
     }
     return (
         <Grid item xs={4} sm={4} md={4} key={1}>

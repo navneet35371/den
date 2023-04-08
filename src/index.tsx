@@ -10,6 +10,8 @@ const root = ReactDOM.createRoot(rootElement!);
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -34,8 +36,11 @@ export default firebaseapp;
 
 root.render(
   <ThemeProvider theme={theme}>
-    {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
     <CssBaseline />
     <App />
+    </LocalizationProvider>
+    {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+    
   </ThemeProvider>,
 );
