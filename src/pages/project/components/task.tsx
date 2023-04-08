@@ -5,14 +5,14 @@ import { Task } from '../types';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { getDatabase, ref, remove, update } from "firebase/database";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
 export default function TaskCard(props: any) {
     const { task } = props;
     const [isUpdate, setIsUpdate] = React.useState(false);
     const [taskDescription, setTaskDescription] = React.useState(task.name);
-    const [startDate, setStartDate] = React.useState<Date | null>(new Date(task.startDate));
-    const [endDate, setEndDate] = React.useState<Date | null>(new Date(task.endDate));
+    const [startDate, setStartDate] = React.useState<Dayjs | null>(dayjs(task.startDat));
+    const [endDate, setEndDate] = React.useState<Dayjs | null>(dayjs(task.endDate));
     const handleDelete = (id: string) => {
         const db = getDatabase();
         const tasksRef = ref(db, 'tasks/' + id);
