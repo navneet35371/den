@@ -21,7 +21,7 @@ function Copyright() {
 
 export default function App() {
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="lg" style={{marginTop: "24px"}}>
       <Project></Project>
     </Container>
   );
