@@ -1,11 +1,12 @@
-import { Grid, Card, CardHeader, Avatar, IconButton, CardContent, Typography, CardActions, Button, Menu, MenuItem, TextField } from "@mui/material";
+import { Grid, Card, CardHeader, Avatar, IconButton, CardContent, Typography, CardActions, Button, Menu, MenuItem, TextField, Dialog, DialogTitle, DialogContent } from "@mui/material";
 import { red } from "@mui/material/colors";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Task } from '../types';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { getDatabase, ref, remove, update } from "firebase/database";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from "dayjs";
+import { HexColorPicker } from "react-colorful";
 
 export default function TaskCard(props: any) {
     const { task } = props;
@@ -13,6 +14,10 @@ export default function TaskCard(props: any) {
     const [taskDescription, setTaskDescription] = React.useState(task.name);
     const [startDate, setStartDate] = React.useState<Dayjs | null>(dayjs(task.startDat));
     const [endDate, setEndDate] = React.useState<Dayjs | null>(dayjs(task.endDate));
+    const taskColor = task.color ? task.color : "#fff"
+    const [color, setColor] = useState(taskColor);
+
+    const [openDialog, setOpenDialog] = useState(false);
     const handleDelete = (id: string) => {
         const db = getDatabase();
         const tasksRef = ref(db, 'tasks/' + id);
@@ -54,6 +59,49 @@ export default function TaskCard(props: any) {
     const handleTextchange = (value: string) => {
         setTaskDescription(value);
     }
+
+    const handleDialogClose = (color:string) => {
+        setOpenDialog(false);
+        setColor(color);
+    }
+
+    const updateColor = (color: string) => {
+        const taskId = task.id;
+        const db = getDatabase();
+        const tasksRef = ref(db, 'tasks/' + taskId);
+        update(tasksRef, { color: color });
+    }
+
+    useEffect(() => {
+        updateColor(color);
+    }, [color])
+
+    const SimpleDialog = (props : any) => {
+        const { onClose, open } = props;
+        const [color, setColor] = useState("#fff");
+      
+        // const handleClose = () => {
+        //   onClose(color);
+        // };
+
+        // useEffect(() => {
+        //     onClose(color);
+        // },[color])
+      
+        const handleListItemClick = (value: string) => {
+          onClose(color);
+        };
+      
+        return (
+          <Dialog onClose={handleClose} open={open}>
+            <DialogTitle>Set color for task</DialogTitle>
+            <DialogContent>
+                <HexColorPicker color={color} onChange={setColor} onClick={() => handleListItemClick(color)}/>
+            </DialogContent>  
+          </Dialog>
+        );
+      }
+      
     return (
         <Grid item xs={4} sm={4} md={4} key={task.id}>
             <Card sx={{ minWidth: 275 }} variant="outlined">
@@ -78,7 +126,7 @@ export default function TaskCard(props: any) {
                     title="Navneet"
                     subheader={task.status}
                 />
-                <CardContent >
+                <CardContent  style={{backgroundColor:task.color}}>
                     {!isUpdate && <Typography sx={{ mb: 1.5 }} color="text.secondary">
                         {task.name && <span>Descriptiion: {task.name}</span>}   
                         {task.startDate && <div>Start Date: {dayjs(task.startDate).format('DD/MM/YYYY')}</div>}
@@ -94,11 +142,17 @@ export default function TaskCard(props: any) {
                                 value={endDate}
                                 onChange={(newValue) => {setEndDate(newValue)}} />
                         </>}
+                        <SimpleDialog
+                            selectedValue={color}
+                            open={openDialog}
+                            onClose={handleDialogClose}
+                            />
                 </CardContent>
                 <CardActions>
                     {isUpdate && <Button size="small" onClick={() => { updateDescription(task.id, taskDescription); setIsUpdate(!isUpdate) }}>Update</Button>}
                     {!isUpdate && <Button size="small" onClick={() => setIsUpdate(!isUpdate)}>Edit</Button>}
                     <Button size="small" onClick={() => handleDelete(task.id)}>Delete</Button>
+                    <Button size="small" onClick={() => setOpenDialog(true)}>Update Color</Button> 
                 </CardActions>
             </Card>
             <Menu
